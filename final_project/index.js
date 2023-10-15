@@ -12,6 +12,20 @@ app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUni
 
 app.use("/customer/auth/*", function auth(req,res,next){
 //Write the authenication mechanism here
+    let tkn = req.header('Authorization');
+    var tokenValue;
+    if (!tkn) return res.status(401).send("No Token");
+    if (tkn.startsWith('Bearer ')) {
+        tokenValue = tkn.slice(7, tkn.length).trimStart();
+    }
+    const verificationStatus = jwt.verify(tokenValue, "Thesecret");
+    if (verificationStatus.user === "user") {
+        console.log("Allow to access");
+        next();
+    }
+    else {
+        return res.status(401).json({ message: "Please login to access"});
+    }
 });
  
 const PORT =5000;
